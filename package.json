@@ -1,0 +1,17 @@
+{
+    "name": "velvet-stroke",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite --host 0.0.0.0"
+    },
+    "dependencies": {
+        "@types/node": "^22.7.0",
+        "gsap": "^3.12.5",
+        "vite": "^5.4.5"
+    },
+    "devDependencies": {
+        "typescript": "^4.9.5"
+    }
+}

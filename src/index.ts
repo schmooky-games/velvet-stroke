@@ -47,53 +47,43 @@ function main() {
 
   //   frag: fragmentShader,
   // });
-  const positions: [number,number][] = [[100,400],[600,200], [100, 100], [1200,100]];
+  const positions: [number,number][] = [[100,200],[100,100],[200,100], [200,200], [100,200]];
   let t = 0
   r.frame(()=>{
     r.clear({color:[0,0,0,1]});
-    //drawLine();
-  drawCurve(positions, r);
-  positions[1][0] += 20 * Math.cos(t*0.1);
-  positions[1][1] += 20 * Math.sin(t*0.1);
-  console.log(t);
-  t = t == 2000? 0 : t+1;
+  drawCurve(positions, 2, r);
+  // positions[1][0] += 10 * Math.cos(t*0.1);
+  // positions[1][1] += 10 * Math.sin(t*0.1);
+
+  // t = t == 2000? 0 : t+1;
   })
   
 }
 
-function drawCurve(coordinates: [number,number][], r: REGL.Regl){
+function drawCurve(coordinates: [number,number][], lineWidth:number, r: REGL.Regl){
   let lineCount = coordinates.length-1;
   let i = 0
+
+
   for(;i<lineCount;i++){
-    
-    // console.group(`${i+1} line`)
+    console.group(`${i+1} line`)
     const positions: [number,number][] = [];
-    let g = 0;
+    // let g = 0;
     const currentLine = coordinates.slice(i,i+2);
-    for(; g < 2; g++){
-      const currentCoordinates = currentLine[g];
-   
-      const clipedCoordinates = pixelToClipSpace(currentCoordinates[0], currentCoordinates[1]+2, r);
-      // console.log(clipedCoordinates)
-      positions.push(clipedCoordinates);
-    }
-  
-    g=0;
-    for(; g < 2; g++){
-      const currentCoordinates = currentLine[g];
-      const clipedCoordinates = pixelToClipSpace(currentCoordinates[0], currentCoordinates[1]-2, r);
-      // console.log(clipedCoordinates)
-      positions.push(clipedCoordinates);
-    }
-
-    // positions.push(pixelToClipSpace(coordinates[0][0], coordinates[0][1]-5, r));
-
-    // positions.push(pixelToClipSpace(coordinates[1][0], coordinates[1][1]-5, r));
-
-    // positions.push(pixelToClipSpace(coordinates[0][0], coordinates[0][1]+5, r));
     
-    // positions.push(pixelToClipSpace(coordinates[1][0], coordinates[1][1]+5, r));
-    
+    // const angle = angleFromSlope(currentLine[0],currentLine[1]);
+    // const widthX = Math.sin(angle)*lineWidth/2;
+    // const widthY = Math.cos(angle)*lineWidth/2;
+
+    console.log(currentLine[0],currentLine[1])
+    const pizdec = cordsWithWidth(currentLine[0], lineWidth/2, currentLine[1]);
+
+    console.log(pizdec);
+    positions.push(pixelToClipSpace(pizdec.p1, r));
+    positions.push(pixelToClipSpace(pizdec.p2, r));
+    positions.push(pixelToClipSpace(pizdec.p3, r));
+    positions.push(pixelToClipSpace(pizdec.p4, r));
+
 
     const drawLine = r({
       // Define how many vertices to use for each primitive
@@ -114,7 +104,43 @@ function drawCurve(coordinates: [number,number][], r: REGL.Regl){
     });
 
     drawLine();
-    // console.groupEnd();
+    console.groupEnd();
+  }
+}
+
+// function angleFromSlope(pos1:[number,number], pos2:[number,number]){
+//   const slope = (pos2[1]-pos1[1])/(pos2[0]-pos1[0]);
+
+
+//   const acrttan = Math.atan(slope);
+
+//   const angle = acrttan;
+//   console.log("angle from slope",angle)
+//   return Math.abs(angle);
+// }
+
+function cordsWithWidth(pos1:[number,number],width:number, pos2: [number,number]){
+  if(pos1[0]-pos2[0] !== 0){
+    const c1 = [pos1[0],pos1[1]+width]
+    const c2 = [pos1[0],pos1[1]-width]
+  
+    const c3 = [pos2[0],pos2[1]+width]
+    const c4 = [pos2[0],pos2[1]-width]
+    
+    return {p1:c1, p2:c3, p3:c2, p4:c4};
+  }
+  else{
+    
+    const m1= (pos1[1]-pos2[1])/(pos1[0]-pos2[0]);
+    const m2 = -1/m1;
+  
+    const c1 = [pos1[0]+width/Math.sqrt(1+m2*m2),pos1[1]+width*m2/Math.sqrt(1+m2*m2)]
+    const c2 = [pos1[0]-width/Math.sqrt(1+m2*m2),pos1[1]-width*m2/Math.sqrt(1+m2*m2)]
+  
+    const c3 = [pos2[0]+width/Math.sqrt(1+m2*m2),pos2[1]+width*m2/Math.sqrt(1+m2*m2)]
+    const c4 = [pos2[0]-width/Math.sqrt(1+m2*m2),pos2[1]-width*m2/Math.sqrt(1+m2*m2)]
+  
+    return {p1:c1, p2:c3, p3:c2, p4:c4};
   }
 }
 
@@ -125,14 +151,14 @@ function drawCurve(coordinates: [number,number][], r: REGL.Regl){
  * @param regl - The regl instance.
  * @returns An array with the clip space x and y coordinates.
  */
-function pixelToClipSpace(x: number, y: number, regl: REGL.Regl): [number, number] {
+function pixelToClipSpace(pos:number[], regl: REGL.Regl): [number, number] {
   // Get the current viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
   // Convert to clip space
-  const clipX = (2 * x / viewportWidth) - 1;
-  const clipY = 1 - (2 * y / viewportHeight);  // Y is inverted in clip space
+  const clipX = (2 * pos[0] / viewportWidth) - 1;
+  const clipY = 1 - (2 * pos[1] / viewportHeight);  // Y is inverted in clip space
     
   return [clipX, clipY];
 }

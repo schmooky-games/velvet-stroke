@@ -47,15 +47,17 @@ function main() {
 
   //   frag: fragmentShader,
   // });
-  const positions: [number,number][] = [[100,200],[100,100],[200,100], [200,200], [100,200]];
+  const positions: [number,number][] = [[100,200],[300,200],[400,100],[400,200]];
   let t = 0
   r.frame(()=>{
     r.clear({color:[0,0,0,1]});
   drawCurve(positions, 2, r);
-  // positions[1][0] += 10 * Math.cos(t*0.1);
-  // positions[1][1] += 10 * Math.sin(t*0.1);
+  positions[0][0] += 11 * Math.cos(t*0.1);
+  positions[1][0] += 11 * Math.cos(t*0.1);
+  positions[2][0] += 11 * Math.cos(t*0.1);
+  positions[2][1] += 11 * Math.sin(t*0.1);
 
-  // t = t == 2000? 0 : t+1;
+  t = t == 2000? 0 : t+1;
   })
   
 }
